@@ -1,5 +1,5 @@
 export interface EventFormData {
-  title: string;
+  name: string;
   description: string;
   startDate: string;
   endDate: string;
@@ -31,7 +31,7 @@ export const getEvents = async ({
   filterName,
   filterStartDate,
   filterEndDate,
-}: FetchEventsParams): Promise<{ events: Event[]; total: number }> => {
+}: FetchEventsParams): Promise<{ rows:[], count: number }> => {
   const queryParams = new URLSearchParams({
     page: page.toString(),
     limit: limit.toString(),
@@ -42,7 +42,7 @@ export const getEvents = async ({
     ...(filterEndDate && { filterEndDate }),
   });
 
-  const response = await fetch(`${API_URL}?${queryParams.toString()}`);
+  const response = await fetch(`${API_URL}/events?${queryParams.toString()}`);
   if (!response.ok) {
     throw new Error("Failed to fetch events");
   }
@@ -54,17 +54,17 @@ export const createEvent = async (
   images: File[]
 ): Promise<Event> => {
   const formData = new FormData();
-  formData.append("title", event.title);
+  formData.append("name", event.name);
   formData.append("description", event.description);
   formData.append("startDate", event.startDate);
   formData.append("endDate", event.endDate);
   formData.append("totalGuests", event.totalGuests.toString());
 
-  images.forEach((image, index) => {
-    formData.append(`images[${index}]`, image);
+  images.forEach((image) => {
+    formData.append("images", image);
   });
 
-  const response = await fetch(API_URL, {
+  const response = await fetch(`${API_URL}/events`, {
     method: "POST",
     body: formData,
   });
@@ -81,17 +81,17 @@ export const updateEvent = async (
   images: File[]
 ): Promise<Event> => {
   const formData = new FormData();
-  formData.append("title", event.title);
+  formData.append("name", event.name);
   formData.append("description", event.description);
   formData.append("startDate", event.startDate);
   formData.append("endDate", event.endDate);
   formData.append("totalGuests", event.totalGuests.toString());
 
-  images.forEach((image, index) => {
-    formData.append(`images[${index}]`, image);
+  images.forEach((image) => {
+    formData.append("images", image);
   });
 
-  const response = await fetch(`${API_URL}/${event.id}`, {
+  const response = await fetch(`${API_URL}/events/${event.id}`, {
     method: "PUT",
     body: formData,
   });
@@ -104,7 +104,7 @@ export const updateEvent = async (
 };
 
 export const deleteEvent = async (id: number): Promise<void> => {
-  const response = await fetch(`${API_URL}/${id}`, {
+  const response = await fetch(`${API_URL}/events/${id}`, {
     method: "DELETE",
   });
   if (!response.ok) {

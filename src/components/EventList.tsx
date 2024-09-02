@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { getEvents, deleteEvent, Event } from "../requests/api";
+import moment from "moment";
 
 interface EventListProps {
   onEdit: (event: Event) => void;
@@ -26,7 +27,7 @@ const EventList: React.FC<EventListProps> = ({
   const fetchData = async () => {
     setLoading(true);
     try {
-      const { events, total } = await getEvents({
+      const { count, rows } = await getEvents({
         page,
         limit,
         sortBy,
@@ -34,9 +35,10 @@ const EventList: React.FC<EventListProps> = ({
         filterName,
         filterStartDate,
         filterEndDate,
-      });
-      setEvents(events);
-      setTotalEvents(total);
+      });      
+    
+      setEvents(rows);
+      setTotalEvents(count);
     } catch (error) {
       console.error("Failed to fetch events:", error);
     } finally {
@@ -48,7 +50,7 @@ const EventList: React.FC<EventListProps> = ({
     fetchData();
   }, [page, limit, sortBy, order, refreshEvents]);
 
-  const handleSort = (field: "title" | "startDate" | "endDate") => {
+  const handleSort = (field: "name" | "startDate" | "endDate") => {
     if (sortBy === field) {
       setOrder(order === "asc" ? "desc" : "asc");
     } else {
@@ -57,7 +59,7 @@ const EventList: React.FC<EventListProps> = ({
     }
   };
 
-  const getSortIcon = (field: "title" | "startDate" | "endDate") => {
+  const getSortIcon = (field: "name" | "startDate" | "endDate") => {
     if (sortBy === field) {
       return order === "asc" ? "↑" : "↓";
     }
@@ -72,6 +74,10 @@ const EventList: React.FC<EventListProps> = ({
       console.error("Failed to delete event:", error);
     }
   };
+
+  const convertDateFormate = (date: string) =>  {
+    return moment(date).format('DD/mm/yyyy');
+  }
 
   return (
     <div>
@@ -112,10 +118,10 @@ const EventList: React.FC<EventListProps> = ({
             <thead>
               <tr>
                 <th
-                  onClick={() => handleSort("title")}
+                  onClick={() => handleSort("name")}
                   style={{ cursor: "pointer" }}
                 >
-                  Title {getSortIcon("title")}
+                  Name {getSortIcon("name")}
                 </th>
                 <th>Description</th>
                 <th
@@ -137,10 +143,10 @@ const EventList: React.FC<EventListProps> = ({
             <tbody>
               {events.map((event) => (
                 <tr key={event.id}>
-                  <td>{event.title}</td>
+                  <td>{event.name}</td>
                   <td>{event.description}</td>
-                  <td>{event.startDate}</td>
-                  <td>{event.endDate}</td>
+                  <td>{convertDateFormate(event.startDate)}</td>
+                  <td>{convertDateFormate(event.endDate)}</td>
                   <td>{event.totalGuests}</td>
                   <td>
                     <button

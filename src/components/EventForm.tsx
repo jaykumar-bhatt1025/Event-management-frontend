@@ -8,7 +8,7 @@ interface EventFormProps {
 
 const EventForm: React.FC<EventFormProps> = ({ event, onSave }) => {
   const [formData, setFormData] = useState<EventFormData>({
-    title: event?.title || "",
+    name: event?.name || "",
     description: event?.description || "",
     startDate: event?.startDate || "",
     endDate: event?.endDate || "",
@@ -34,8 +34,8 @@ const EventForm: React.FC<EventFormProps> = ({ event, onSave }) => {
   const validateForm = (): boolean => {
     const errors: string[] = [];
 
-    if (!formData.title.trim()) {
-      errors.push("Title is required.");
+    if (!formData.name.trim()) {
+      errors.push("Name is required.");
     }
     if (!formData.description.trim()) {
       errors.push("Description is required.");
@@ -73,12 +73,12 @@ const EventForm: React.FC<EventFormProps> = ({ event, onSave }) => {
   return (
     <form onSubmit={handleSubmit}>
       <div className="mb-3">
-        <label className="form-label">Title</label>
+        <label className="form-label">Name</label>
         <input
           type="text"
-          name="title"
+          name="name"
           className="form-control"
-          value={formData.title}
+          value={formData.name}
           onChange={handleChange}
           required
         />
